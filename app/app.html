@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html ng-app="twilioTest"> <!-- Begin html. -->
+   <head> <!-- Begin head. -->
+      <title>Phone Calls from the Browser.</title>
+
+      <!-- Load Boostrap. -->
+      <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+      <!-- Load AngularJS and Twilio. -->
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+      <script src="//static.twilio.com/libs/twiliojs/1.2/twilio.min.js"></script>
+
+      <!-- AngularJS Module Definition and Controller. -->
+      <script>
+         var twilioTestApp = angular.module('twilioTest', []);
+
+         twilioTestApp.controller('twilioTestCtrl', function ($scope, $http) {
+            
+            // Get a Twilio capability token from the server.
+            $http.get('/twilio/token').success(function (token) {
+               Twilio.Device.setup(token); // Setup our Twilio device with the token.
+            }); // Note: Should do error checking here.
+
+            // Make a Twilio call.
+            $scope.call = function () {
+               Twilio.Device.connect({ // Connect our call.
+                  CallerId:'<Enter your twilio number here>', // Your Twilio number (Format: +15556667777).
+                  PhoneNumber:'<Enter number to call here>' // Number to call (Format: +15556667777).
+               });
+            }
+
+            // Hang up a Twilio call.
+            $scope.hangUp = function () {
+               Twilio.Device.disconnectAll(); // Disconnect our call.
+            }
+         });
+      </script>
+   </head> <!-- End head. -->
+
+   <body ng-controller="twilioTestCtrl"> <!-- Begin body. -->
+
+      <div class="well"> <!-- Begin well. -->
+         <button type="button" class="btn btn-success btn-lg" ng-click="call()">Call</button> <!-- Calls click(). -->
+         <button type="button" class="btn btn-danger btn-lg" ng-click="hangUp()">Hang Up</button> <!-- Calls hangUp(). -->
+      </div> <!-- End well. -->
+
+   </body> <!-- End body. -->
+</html> <!-- End html. -->

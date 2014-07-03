@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <style>
+      /* Space out content a bit */
+      body {
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+
+      /* Everything but the jumbotron gets side spacing for mobile first views */
+      .header,
+      .marketing,
+      .footer {
+        padding-right: 15px;
+        padding-left: 15px;
+      }
+
+      /* Custom page header */
+      .header {
+        border-bottom: 1px solid #e5e5e5;
+      }
+      /* Make the masthead heading the same height as the navigation */
+      .header h3 {
+        padding-bottom: 19px;
+        margin-top: 0;
+        margin-bottom: 0;
+        line-height: 40px;
+      }
+
+      /* Custom page footer */
+      .footer {
+        padding-top: 19px;
+        color: #777;
+        border-top: 1px solid #e5e5e5;
+      }
+
+      /* Customize container */
+      @media (min-width: 768px) {
+        .container {
+          max-width: 730px;
+        }
+      }
+      .container-narrow > hr {
+        margin: 30px 0;
+      }
+
+      /* Main marketing message and sign up button */
+      .jumbotron {
+        text-align: center;
+        border-bottom: 1px solid #e5e5e5;
+      }
+      .jumbotron .btn {
+        padding: 14px 24px;
+        font-size: 21px;
+      }
+
+      /* Supporting marketing content */
+      .marketing {
+        margin: 40px 0;
+      }
+      .marketing p + h4 {
+        margin-top: 28px;
+      }
+
+      /* Responsive: Portrait tablets and up */
+      @media screen and (min-width: 768px) {
+        /* Remove the padding we set earlier */
+        .header,
+        .marketing,
+        .footer {
+          padding-right: 0;
+          padding-left: 0;
+        }
+        /* Space out the masthead */
+        .header {
+          margin-bottom: 30px;
+        }
+        /* Remove the bottom border on the jumbotron for visual effect */
+        .jumbotron {
+          border-bottom: 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="jumbotron">
+        <h2><font size="+4">Making Phone Calls from the Browser with<br> <font color="red">Twilio</font> and <font color="red">AngularJS</font>.</font></h2>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-lg-12">
+          <h2>Introduction</h2>
+          <p>
+            This is a tutorial that demonstrates how to make a phone call using the Twilio API in an AngularJS application. We are assuming you already have a <a href="https://www.twilio.com/" target="_blank">Twilio</a> account and <a href="http://nodejs.org/download/" target="_blank">Node.js</a> installed on your machine. You can download the complete source code for our test application on GitHub <a href="#">here</a>.
+          </p>
+          <h2>Part I: The Server</h2>
+          <p>
+            Making a phone call from the browser in an AngularJS application requires both a client and server implementation using the Twilio API. We will first create a file called <code>server.js</code> that will contain our server implementation for this application. 
+            <br><br>
+            The servers job here will be to create a Twilio <a href="https://www.twilio.com/docs/client/capability-tokens" target="_blank">capability token</a> and send it to the client upon a request (this will be a standard HTTP GET request). A capability token is used to tell Twilio's back-end which permissions your browser-based client has. It verifies that you have given the client permission to consume the Twilio services the application uses. The capability token must be signed with your ACCOUNT SID and AUTH TOKEN for this verification to work. This must happen on the server to avoid exposing your ACCOUNT SID and AUTH TOKEN to your users. See Figure 1.0 for an example of making an initial compatibility token on the server.
+            <center><a href="img/fig1.0.png" target="_blank"><img class="img-responsive" src="img/fig1.0.png" width="600" height="67"></a><strong>(Figure 1.0)</strong></center> 
+            <br>
+            The next thing we want to do is <a href="https://www.twilio.com/user/account/apps/add" target="_blank">create a TwiML app</a>. See Figure 1.1 for an example of what to enter in the form - boxed in red.
+            <br><br>
+            <center><a href="img/fig1.1.png" target="_blank"><img class="img-responsive" src="img/fig1.1.png" width="600" height="288"></a><strong>(Figure 1.1)</strong></center> 
+            <br>
+            When we create a TwiML app, a special SID is created for that app - call it APP SID. After we create our capability token we need to set the capability on it that allows the client to make outgoing calls. We do this with the allowClientOutgoing() function along with the APP SID. See figure 1.2 with the code for how to do this.
+            <br><br>
+            <center><a href="img/fig1.2.png" target="_blank"><img class="img-responsive" src="img/fig1.2.png" width="600" height="37"></a><strong>(Figure 1.2)</strong></center> 
+            <br>
+            The trick here occurs in Figure 1.1 where we set the Voice Request URL to <a href="http://twimlets.com/forward" target="_blank">http://twimlets.com/forward</a>. We are telling Twilio here to allow outgoing calls from the client to our TwiML app which defines the rule in TwiML to forward calls by dialing. TwiML - <a href="https://www.twilio.com/docs/api/twiml" target="_blank">the Twilio Markup Language</a> - is a set of XML instructions which tell Twilio how to handle a call or SMS message for a given number. This is essentially what gives us the ability - or capability :) - to call out from the browser.
+            <br><br>
+            Next we simply send the capability token to the client. See Figure 1.3 for the full capability token setup and server GET request. Notice that in order to get a capibility token, the client must do an HTTP GET request for the URL '/twilio/token' from the server.
+            <br><br>
+            <center><a href="img/fig1.3.png" target="_blank"><img class="img-responsive" src="img/fig1.3.png" width="600" height="192"></a><strong>(Figure 1.3)</strong></center> 
+          </p>
+
+          <h2>Part II: The Client</h2>
+          <p>
+            On the client side we have an AngularJS application set up in the single <code>app.html</code> file. In this file we define the <code>'twilioTest'</code> module as well as the <code>'twilioTestCtrl'</code> controller. The <code>'twilioTestCtrl'</code> controller has control over the entire body of the <code>app.html</code> file. There are three functions in the <code>'twilioTestCtrl'</code> controller that provide the entire functionality for making a client-side browser based phone call.
+            <br><br>
+            The first is the HTTP GET request that we issue to get the compatibility token from the server. See Figure 2.0 for how this works.
+            <br>
+            <center><a href="img/fig2.0.png" target="_blank"><img class="img-responsive" src="img/fig2.0.png" width="600" height="74"></a><strong>(Figure 2.0)</strong></center>
+            <br>
+            You can see here that after we successfully get the token we set it on the <a href="https://www.twilio.com/docs/client/device" target="_blank">Twilio Device</a> using the setup() function. This Device is an abstraction of our phone device that allows us to connect with and send requests to Twilio.
+            <br><br>
+            The second function we define is <code>$scope.call()</code>, which will be activated using a button with the directive <code>ng-click="call()"</code>. This function will make the actual phone call request to the Twilio servers, and the phone should start ringing after it is called - this is of course after you hit 'Allow' to give permission to the browser to use the microphone. See Figure 2.1 for the implementation of this function.
+            <br><br>
+            <center><a href="img/fig2.1.png" target="_blank"><img class="img-responsive" src="img/fig2.1.png" width="600" height="94"></a><strong>(Figure 2.1)</strong></center>
+            <br>
+            The third and final function we define for this controller is the <code>$scope.hangUp()</code> function, which will be activated using a button with the directive <code>ng-click="hangUp()"</code>. This function will disconnect a current phone call if there is one, effectively hanging up the phone. See Figure 2.2 for the implementation.
+            <br><br>
+            <center><a href="img/fig2.2.png" target="_blank"><img class="img-responsive" src="img/fig2.2.png" width="600" height="85"></a><strong>(Figure 2.2)</strong></center>
+            <br><br>
+            Here is the full module and controller definition for this application:
+            <br><br>
+            <center><a href="img/fig2.3.png" target="_blank"><img class="img-responsive" src="img/fig2.3.png" width="600" height="272"></a><strong>(Figure 2.3)</strong></center>
+          </p>
+          <h2>Conclusion</h2>
+          <p>
+            We hope you enjoyed this tutorial. <a href="" target="_blank">Click here</a> to download the source from GitHub. Thanks for reading!
+          </P>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Chris Camargo, July 2014</p>
+      </div>
+
+    </div> <!-- /container -->
+  </body>
+</html>
