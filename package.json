@@ -1,5 +1,5 @@
 {
-  "name": "CallingWithTwilio",
+  "name": "Twilio-AngularJS-Demo",
   "dependencies": {
     "express": "~4.0.0",
     "twilio": "~1.0.0"
