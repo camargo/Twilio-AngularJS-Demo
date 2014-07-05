@@ -7,7 +7,7 @@ To run this project using your Twilio account follow these steps:
 2. Open server.js and add three values:
     a. Your ACCOUNT SID.
     b. Your AUTH TOKEN.
-    c. Your APP SID.
+    c. Your APP SID. (See tutorial.html for setup instructions)
    Save and close after they are added.
 3. Open app.html and add two values in the call() function:
     a. Your Twilio number.
